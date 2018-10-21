@@ -72,15 +72,24 @@ void init_hardware(void)
 }
 
 void intro_screen(void) {
-    zx_border(INK_BLACK);
-    zx_cls(INK_BLACK | PAPER_MAGENTA | BRIGHT);
+    // Default colourscheme for the game
+    zx_border(INK_BLACK);               // A black border,
+    zx_cls(INK_BLACK | PAPER_MAGENTA | BRIGHT); // Black INK, Bright Magenta Paper
+                    // The reason we use Bright Magenta Paper is that it makes the
+                    // ULA go see-through, which means we can do fancy text FX on it
 
+
+    // Throw up a pretty quick bitmap as a background for our later loader
     layer2_load_screen("Loader.nxi", MAIN_SCREEN, 6, false);
+
+
     layer2_configure(true, false, false, 0);
+
     layer2_set_layer_priorities(LAYER_PRIORITIES_U_S_L);
 
     layer2_set_global_transparency_color(231);
 
+    // Wait for 50 frames, count the
     for(int i=0; i<50;i++) {
         intrinsic_halt();
     }
@@ -89,9 +98,6 @@ void intro_screen(void) {
 
 static void init_assets(void)
 {
-    zx_border(INK_BLACK);
-    zx_cls(INK_BLACK | PAPER_MAGENTA | BRIGHT);
-
     set_sprite_layers_system(true, false, LAYER_PRIORITIES_U_L_S, false);
     load_sprite_patterns("Sprites.spr", readBuffer, 15, 0);
 
@@ -171,15 +177,25 @@ void play_game(void) {
     uint8_t X = 38;
     uint8_t Y = 167;
 
+    // These are our "pillars of Hanoi". Three of them, called
+
+    // Left - this is our first pillar, and fully loaded to begin
     uint8_t left_pillar[5] = {5, 4, 3, 2, 1};
     uint8_t left_pillar_height = 5;
+
+    // Middle - empty
     uint8_t middle_pillar[5] = {0, 0, 0, 0, 0};
     uint8_t middle_pillar_height = 0;
+
+    // Right - and our target pillar
     uint8_t right_pillar[5] = {0, 0, 0, 0, 0};
     uint8_t right_pillar_height = 0;
 
-    bool    animating = false;
-    bool    playing = true;
+    // The status of the current game...
+
+    bool    animating = false;  // Is there already a piece moving?
+    bool    playing = true;     // Is the game in play? FALSE == won
+
     uint8_t inkey = 0;
     uint8_t lastkey = 0;
     uint8_t moving = 0;
