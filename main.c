@@ -114,7 +114,9 @@ static void init_assets(void)
 }
 
 void draw_menu(void) {
-
+    printPaper(INK_MAGENTA | BRIGHT);
+    printInk(INK_YELLOW);
+    printAt(5, 10); printf("%02d seconds", high_score);
 }
 
 void wait_for_key(void) {
@@ -174,6 +176,9 @@ void hanoi_draw_row(int row, int thisX, int thisY) {
 }
 
 void play_game(void) {
+
+    zx_cls(INK_BLACK | PAPER_MAGENTA | BRIGHT); // Black INK, Bright Magenta Paper
+
     uint8_t X = 38;
     uint8_t Y = 167;
 
@@ -203,11 +208,19 @@ void play_game(void) {
     uint8_t moving_x, moving_y, destination_x, destination_y;
 
     uint8_t timer = 0;
+    uint8_t frames = 0;
 
     layer2_load_screen("MainGame.nxi", MAIN_SCREEN, 6, false);
 
 
     while(playing) {
+        frames++;
+        if(frames==50) {
+            frames=0;
+            timer++;
+            printAt(23, 4); printf("Time Elapsed: %d second", timer);
+            if(timer>1) printf("s");
+        }
 
         set_sprite_layers_system(true, false, LAYER_PRIORITIES_U_S_L, false);
         layer2_set_layer_priorities(LAYER_PRIORITIES_U_S_L);
