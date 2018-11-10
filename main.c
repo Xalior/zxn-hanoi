@@ -62,13 +62,9 @@ void init_hardware(void)
     ZXN_NEXTREG(REG_TURBO_MODE, RTM_14MHZ);
 
     // And setup the memory banks for screens - mostly this is for emulators...
-    layer2_set_main_screen_ram_bank(8);
-    layer2_set_shadow_screen_ram_bank(11);
-
-    // Now we need to make sure we're in the right folder. Saves us typing
-    // "/HANOI" every time we want a file later
-    esxdos_f_chdir("/HANOI");
-
+    layer2_set_main_screen_ram_bank(9);
+    layer2_set_shadow_screen_ram_bank(12);
+    layer2_set_global_transparency_color(231);
 }
 
 void intro_screen(void) {
@@ -80,15 +76,14 @@ void intro_screen(void) {
 
 
     // Throw up a pretty quick bitmap as a background for our later loader
-    layer2_load_screen("Loader.nxi", MAIN_SCREEN, 6, false);
+    layer2_load_screen("loader.nxi", MAIN_SCREEN, 6, false);
 
-
-    layer2_configure(true, false, false, 0);
-
-    layer2_set_layer_priorities(LAYER_PRIORITIES_U_S_L);
-
-    layer2_set_global_transparency_color(231);
-
+    if (errno)
+    {
+        layer2_set_layer_priorities(LAYER_PRIORITIES_U_S_L);
+        printf("\nFAILED TO LOAD 'loader.nxi' ERROR: %d \n", errno);
+        exit(errno);
+    }
     // Wait for 50 frames, count the
     for(int i=0; i<50;i++) {
         intrinsic_halt();
@@ -98,24 +93,29 @@ void intro_screen(void) {
 
 static void init_assets(void)
 {
-    set_sprite_layers_system(true, false, LAYER_PRIORITIES_U_L_S, false);
-    load_sprite_patterns("Sprites.spr", readBuffer, 15, 0);
+//    set_sprite_layers_system(true, false, LAYER_PRIORITIES_U_L_S, false);
+    load_sprite_patterns("sprites.spr", readBuffer, 15, 0);
 
+    if (errno)
+    {
+        printf("\nFAILED TO LOAD 'sprites.spr' ERROR: %d \n", errno);
+        exit(errno);
+    }
     layer2_configure(true, false, false, 0);
-    layer2_load_screen("MainMenu.nxi", MAIN_SCREEN, 6, false);
+    layer2_load_screen("mm.nxi", MAIN_SCREEN, 6, false);
+
     layer2_set_layer_priorities(LAYER_PRIORITIES_U_S_L);
 
     if (errno)
     {
-        printAt(0,0);
-        printf("FAILED TO LOAD HANOI: ERROR: %d", errno);
+        printf("\nFAILED TO LOAD 'mm.nxi' ERROR: %d \n", errno);
         exit(errno);
     }
 }
 
 void draw_menu(void) {
     printPaper(INK_MAGENTA | BRIGHT);
-    printInk(INK_YELLOW);
+    printInk(INK_YELLOW| BRIGHT);
     printAt(5, 10); printf("%02d seconds", high_score);
 }
 
